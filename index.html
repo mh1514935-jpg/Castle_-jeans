@@ -3,30 +3,329 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Castle Jeans</title>
+  <title>Castle Jeans POS</title>
   <style>
-    * { box-sizing: border-box; font-family: sans-serif; }
-    body { background-color: #0f172a; color: #ffffff; margin: 0; padding: 20px; text-align: center; }
-    .card { background-color: #1e293b; padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid #334155; }
-    h1 { color: #fbbf24; margin-bottom: 5px; }
-    input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #475569; }
-    input { background-color: #0f172a; color: #fff; }
-    button { background-color: #10b981; color: white; font-weight: bold; border: none; cursor: pointer; }
-    button:hover { background-color: #059669; }
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #fbbf24;
+      --green: #10b981;
+      --red: #ef4444;
+      --text: #ffffff;
+      --subtext: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; }
+    
+    header { background-color: var(--card); padding: 15px; text-align: center; border-bottom: 1px solid var(--border); }
+    header h1 { color: var(--accent); font-size: 1.4rem; }
+    
+    .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+    .section { display: none; }
+    .section.active { display: block; }
+    
+    .card { background-color: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); }
+    h2 { font-size: 1.1rem; color: var(--accent); margin-bottom: 12px; }
+    
+    label { display: block; font-size: 0.85rem; color: var(--subtext); margin-top: 8px; margin-bottom: 4px; }
+    input, select, button { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--bg); color: #fff; font-size: 0.95rem; }
+    input:focus, select:focus { outline: 1px solid var(--accent); }
+    
+    .row { display: flex; gap: 10px; }
+    .row > div { flex: 1; }
+    
+    button.btn-primary { background-color: var(--green); color: white; font-weight: bold; border: none; margin-top: 12px; cursor: pointer; }
+    button.btn-danger { background-color: var(--red); color: white; border: none; padding: 6px 10px; border-radius: 6px; width: auto; }
+    
+    /* Cart & Table Styles */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+    th, td { padding: 8px; text-align: right; border-bottom: 1px solid var(--border); }
+    th { color: var(--subtext); }
+    
+    .total-box { background-color: var(--bg); padding: 12px; border-radius: 8px; margin-top: 10px; }
+    .total-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: bold; }
+    
+    /* Navigation Bar */
+    nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card); display: flex; border-top: 1px solid var(--border); height: 60px; }
+    nav button { flex: 1; border: none; background: transparent; color: var(--subtext); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 0; }
+    nav button.active { color: var(--accent); font-weight: bold; }
+    nav button span { font-size: 1.2rem; }
   </style>
 </head>
 <body>
 
-  <h1>🏰 Castle Jeans</h1>
-  <p>نظام إدارة المبيعات والمخزون</p>
+  <header>
+    <h1>🏰 Castle Jeans</h1>
+    <p style="font-size: 0.8rem; color: var(--subtext);">نظام المبيعات والمخزون المتكامل</p>
+  </header>
 
-  <div class="card">
-    <h3>تسجيل عملية بيع</h3>
-    <input type="text" placeholder="كود القطعة (الباركود)">
-    <input type="number" value="1" placeholder="الكمية">
-    <input type="tel" placeholder="رقم واتساب العميل">
-    <button onclick="alert('تم تسجيل العملية بنجاح!')">إتمام البيع</button>
+  <div class="container">
+    
+    <!-- 1. شاشة البيع (الكاشير) -->
+    <div id="pos-section" class="section active">
+      <div class="card">
+        <h2>تسجيل حركة بيع</h2>
+        <div class="row">
+          <div>
+            <label>الباركود / كود القطعة</label>
+            <input type="text" id="pos-barcode" placeholder="امسح أو اكتب الكود">
+          </div>
+          <div style="flex: 0.4;">
+            <label>الكمية</label>
+            <input type="number" id="pos-qty" value="1" min="1">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="addToCart()">+ إضافة للسلة</button>
+      </div>
+
+      <div class="card">
+        <h2>سلة المبيعات</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>المنتج</th>
+              <th>الكمية</th>
+              <th>السعر</th>
+              <th>إلغاء</th>
+            </tr>
+          </thead>
+          <tbody id="cart-items">
+            <!-- المنتجات بتظهر هنا -->
+          </tbody>
+        </table>
+
+        <div class="total-box">
+          <div class="total-row">
+            <span>الإجمالي:</span>
+            <span id="cart-total">0 ج.م</span>
+          </div>
+        </div>
+
+        <label>رقم واتساب العميل (اختياري)</label>
+        <input type="tel" id="client-phone" placeholder="01xxxxxxxxx">
+
+        <label>طريقة الدفع</label>
+        <select id="payment-method">
+          <option value="كاش">كاش</option>
+          <option value="فودافون كاش">فودافون كاش</option>
+          <option value="فيزا">فيزا / كارت</option>
+        </select>
+
+        <button class="btn-primary" style="background-color: var(--accent); color: #000;" onclick="checkout()">إتمام العملية وطباعة الفاتورة</button>
+      </div>
+    </div>
+
+    <!-- 2. شاشة المخزون والمنتجات -->
+    <div id="inventory-section" class="section">
+      <div class="card">
+        <h2>إضافة منتج جديد للمخزن</h2>
+        <label>اسم القطعة / الموديل</label>
+        <input type="text" id="prod-name" placeholder="مثال: بنطلون جينز سليم">
+        
+        <div class="row">
+          <div>
+            <label>الباركود</label>
+            <input type="text" id="prod-barcode" placeholder="كود القطعة">
+          </div>
+          <div>
+            <label>المقاس</label>
+            <input type="text" id="prod-size" placeholder="32, 34, L..">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>سعر التكلفة</label>
+            <input type="number" id="prod-cost" placeholder="0">
+          </div>
+          <div>
+            <label>سعر البيع</label>
+            <input type="number" id="prod-price" placeholder="0">
+          </div>
+          <div>
+            <label>الكمية</label>
+            <input type="number" id="prod-stock" placeholder="10">
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="addProduct()">حفظ المنتج في المخزن</button>
+      </div>
+
+      <div class="card">
+        <h2>المنتجات المسجلة بالمخزن</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>الكود</th>
+              <th>الاسم</th>
+              <th>السعر</th>
+              <th>المتاح</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-list">
+            <!-- المنتجات المسجلة بتظهر هنا -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. شاشة التقارير والمبيعات -->
+    <div id="reports-section" class="section">
+      <div class="card">
+        <h2>ملخص مبيعات اليوم</h2>
+        <div class="total-box">
+          <div class="total-row">
+            <span>إجمالي المبيعات:</span>
+            <span id="report-sales">0 ج.م</span>
+          </div>
+          <div class="total-row">
+            <span>عدد الفواتير:</span>
+            <span id="report-count">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
+  <!-- شريط التنقل السفلي -->
+  <nav>
+    <button class="active" onclick="switchTab('pos', this)">
+      <span>🛒</span>
+      الكاشير
+    </button>
+    <button onclick="switchTab('inventory', this)">
+      <span>📦</span>
+      المخزن
+    </button>
+    <button onclick="switchTab('reports', this)">
+      <span>📊</span>
+      التقارير
+    </button>
+  </nav>
+
+  <script>
+    // قاعدة بيانات مؤقتة متخزنة على الـ LocalStorage للموبايل
+    let inventory = JSON.parse(localStorage.getItem('castle_inventory')) || [];
+    let cart = [];
+    let salesHistory = JSON.parse(localStorage.getItem('castle_sales')) || [];
+
+    function switchTab(tabName, btn) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabName + '-section').classList.add('active');
+      btn.classList.add('active');
+      updateUI();
+    }
+
+    function addProduct() {
+      const name = document.getElementById('prod-name').value;
+      const barcode = document.getElementById('prod-barcode').value;
+      const price = parseFloat(document.getElementById('prod-price').value);
+      const stock = parseInt(document.getElementById('prod-stock').value);
+
+      if(!name || !barcode || isNaN(price)) {
+        alert('يرجى ملء البيانات الأساسية (الاسم، الباركود، سعر البيع)');
+        return;
+      }
+
+      inventory.push({ name, barcode, price, stock });
+      localStorage.setItem('castle_inventory', JSON.stringify(inventory));
+      alert('تم حفظ المنتج بنجاح!');
+      
+      // مسح الحقول
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-barcode').value = '';
+      document.getElementById('prod-price').value = '';
+      document.getElementById('prod-stock').value = '';
+      updateUI();
+    }
+
+    function addToCart() {
+      const barcode = document.getElementById('pos-barcode').value;
+      const qty = parseInt(document.getElementById('pos-qty').value) || 1;
+      
+      const item = inventory.find(p => p.barcode === barcode);
+      if(!item) {
+        alert('هذا المنتج غير مسجل بالمخزن، يرجى إضافته أولاً من قسم المخزن!');
+        return;
+      }
+
+      cart.push({ ...item, qty, subtotal: item.price * qty });
+      document.getElementById('pos-barcode').value = '';
+      updateCartUI();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const tbody = document.getElementById('cart-items');
+      tbody.innerHTML = '';
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        total += item.subtotal;
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.name}</td>
+            <td>${item.qty}</td>
+            <td>${item.subtotal} ج.م</td>
+            <td><button class="btn-danger" onclick="removeFromCart(${index})">✕</button></td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('cart-total').innerText = total + ' ج.م';
+    }
+
+    function checkout() {
+      if(cart.length === 0) {
+        alert('السلة فارغة!');
+        return;
+      }
+
+      const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
+      const phone = document.getElementById('client-phone').value;
+      const method = document.getElementById('payment-method').value;
+
+      salesHistory.push({ date: new Date().toLocaleDateString('ar-EG'), total, method, items: cart });
+      localStorage.setItem('castle_sales', JSON.stringify(salesHistory));
+
+      alert(`تم إتمام العملية بنجاح!\nالإجمالي: ${total} ج.م\nطريقة الدفع: ${method}`);
+      
+      cart = [];
+      document.getElementById('client-phone').value = '';
+      updateCartUI();
+      updateUI();
+    }
+
+    function updateUI() {
+      // تحديث جدول المخزن
+      const invBody = document.getElementById('inventory-list');
+      invBody.innerHTML = '';
+      inventory.forEach(item => {
+        invBody.innerHTML += `
+          <tr>
+            <td>${item.barcode}</td>
+            <td>${item.name}</td>
+            <td>${item.price} ج.م</td>
+            <td>${item.stock}</td>
+          </tr>
+        `;
+      });
+
+      // تحديث التقارير
+      const totalSales = salesHistory.reduce((sum, s) => sum + s.total, 0);
+      document.getElementById('report-sales').innerText = totalSales + ' ج.م';
+      document.getElementById('report-count').innerText = salesHistory.length;
+    }
+
+    // تشغيل التحديث عند الفتح
+    updateUI();
+  </script>
 </body>
 </html>
