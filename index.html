@@ -1,1200 +1,301 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Castle Jeans POS</title>
-
-<style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-  --input:#111827;
-  --accent:#fbbf24;
-  --green:#10b981;
-  --red:#ef4444;
-  --blue:#3b82f6;
-  --text:#fff;
-  --muted:#94a3b8;
-  --border:#334155;
-}
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  font-family:Arial,Tahoma,sans-serif;
-}
-
-body{
-  background:var(--bg);
-  color:var(--text);
-  padding-bottom:80px;
-}
-
-header{
-  background:var(--card);
-  padding:18px 15px;
-  text-align:center;
-  border-bottom:1px solid var(--border);
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-
-header h1{
-  color:var(--accent);
-  font-size:24px;
-}
-
-header p{
-  color:var(--muted);
-  font-size:13px;
-  margin-top:5px;
-}
-
-.container{
-  width:100%;
-  max-width:700px;
-  margin:auto;
-  padding:15px;
-}
-
-.section{display:none}
-.section.active{display:block}
-
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:15px;
-  margin-bottom:15px;
-}
-
-h2{
-  color:var(--accent);
-  font-size:18px;
-  margin-bottom:14px;
-}
-
-label{
-  display:block;
-  color:var(--muted);
-  font-size:13px;
-  margin:9px 0 5px;
-}
-
-input,select,button{
-  width:100%;
-  border-radius:9px;
-  border:1px solid var(--border);
-  padding:12px;
-  font-size:15px;
-}
-
-input,select{
-  background:var(--input);
-  color:white;
-}
-
-input:focus,select:focus{
-  outline:2px solid var(--accent);
-}
-
-.row{
-  display:flex;
-  gap:10px;
-}
-
-.row>div{
-  flex:1;
-}
-
-button{
-  cursor:pointer;
-  color:white;
-  background:var(--input);
-}
-
-.btn{
-  border:none;
-  margin-top:12px;
-  font-weight:bold;
-}
-
-.btn-green{background:var(--green)}
-.btn-yellow{background:var(--accent);color:#111}
-.btn-red{background:var(--red)}
-.btn-blue{background:var(--blue)}
-
-.small-btn{
-  width:auto;
-  padding:6px 9px;
-  font-size:12px;
-  margin:2px;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  margin-bottom:15px;
-}
-
-.stat{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:15px;
-  text-align:center;
-}
-
-.stat strong{
-  display:block;
-  font-size:20px;
-  color:var(--accent);
-  margin-top:7px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-  font-size:13px;
-}
-
-th,td{
-  padding:9px 5px;
-  border-bottom:1px solid var(--border);
-  text-align:right;
-  vertical-align:middle;
-}
-
-th{color:var(--muted)}
-
-.total{
-  background:var(--input);
-  border-radius:10px;
-  padding:14px;
-  margin-top:12px;
-}
-
-.total-line{
-  display:flex;
-  justify-content:space-between;
-  margin:7px 0;
-  font-weight:bold;
-}
-
-.big-total{
-  color:var(--accent);
-  font-size:20px;
-}
-
-.empty{
-  text-align:center;
-  color:var(--muted);
-  padding:20px;
-}
-
-.badge{
-  padding:4px 7px;
-  border-radius:6px;
-  font-size:11px;
-  background:var(--green);
-}
-
-.badge-red{
-  background:var(--red);
-}
-
-.search{
-  margin-bottom:10px;
-}
-
-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  height:65px;
-  background:var(--card);
-  border-top:1px solid var(--border);
-  display:flex;
-  z-index:100;
-}
-
-nav button{
-  flex:1;
-  border:0;
-  border-radius:0;
-  background:transparent;
-  color:var(--muted);
-  font-size:12px;
-  padding:5px;
-}
-
-nav button span{
-  display:block;
-  font-size:21px;
-  margin-bottom:3px;
-}
-
-nav button.active{
-  color:var(--accent);
-}
-
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#000b;
-  z-index:500;
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-}
-
-.modal-box{
-  background:var(--card);
-  width:100%;
-  max-width:500px;
-  max-height:90vh;
-  overflow:auto;
-  border-radius:15px;
-  padding:18px;
-}
-
-@media(max-width:450px){
-  table{font-size:11px}
-  th,td{padding:7px 3px}
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <h1>🏰 Castle Jeans</h1>
-  <p>نظام إدارة المبيعات والمخزون</p>
-</header>
-
-<div class="container">
-
-<!-- ================= الكاشير ================= -->
-<section id="pos-section" class="section active">
-
-  <div class="card">
-    <h2>🛒 تسجيل بيع</h2>
-
-    <label>باركود / كود المنتج</label>
-    <input id="barcode" placeholder="اكتب أو امسح الباركود"
-           onkeydown="if(event.key==='Enter') addToCart()">
-
-    <div class="row">
-      <div>
-        <label>الكمية</label>
-        <input id="qty" type="number" value="1" min="1">
-      </div>
-
-      <div>
-        <label>بحث بالاسم</label>
-        <input id="productSearch" placeholder="اسم المنتج"
-               oninput="showSearchResults()">
-      </div>
-    </div>
-
-    <div id="searchResults"></div>
-
-    <button class="btn btn-green" onclick="addToCart()">
-      ➕ إضافة للسلة
-    </button>
-  </div>
-
-  <div class="card">
-    <h2>🧾 السلة</h2>
-
-    <div id="cartArea"></div>
-
-    <div class="total">
-      <div class="total-line">
-        <span>عدد القطع</span>
-        <span id="cartQty">0</span>
-      </div>
-
-      <div class="total-line big-total">
-        <span>الإجمالي</span>
-        <span id="cartTotal">0 ج.م</span>
-      </div>
-    </div>
-
-    <label>رقم واتساب العميل - اختياري</label>
-    <input id="customerPhone" placeholder="01xxxxxxxxx">
-
-    <label>طريقة الدفع</label>
-    <select id="payment">
-      <option>كاش</option>
-      <option>فودافون كاش</option>
-      <option>فيزا / كارت</option>
-    </select>
-
-    <button class="btn btn-yellow" onclick="checkout()">
-      ✅ إتمام البيع وطباعة الفاتورة
-    </button>
-  </div>
-
-</section>
-
-
-<!-- ================= المخزن ================= -->
-<section id="inventory-section" class="section">
-
-  <div class="card">
-    <h2>📦 إضافة منتج</h2>
-
-    <label>اسم المنتج</label>
-    <input id="pName" placeholder="مثال: بنطلون جينز أزرق">
-
-    <div class="row">
-      <div>
-        <label>الباركود</label>
-        <input id="pBarcode" placeholder="123456">
-      </div>
-
-      <div>
-        <label>المقاس</label>
-        <input id="pSize" placeholder="32 / L / XL">
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>سعر الشراء</label>
-        <input id="pCost" type="number" placeholder="0">
-      </div>
-
-      <div>
-        <label>سعر البيع</label>
-        <input id="pPrice" type="number" placeholder="0">
-      </div>
-    </div>
-
-    <label>الكمية</label>
-    <input id="pStock" type="number" placeholder="10">
-
-    <button class="btn btn-green" onclick="saveProduct()">
-      💾 حفظ المنتج
-    </button>
-  </div>
-
-  <div class="card">
-    <h2>🔎 المخزون</h2>
-
-    <input class="search" id="inventorySearch"
-           placeholder="ابحث بالاسم أو الباركود..."
-           oninput="renderInventory()">
-
-    <div id="inventoryArea"></div>
-  </div>
-
-</section>
-
-
-<!-- ================= التقارير ================= -->
-<section id="reports-section" class="section">
-
-  <div class="stats">
-
-    <div class="stat">
-      💰 مبيعات اليوم
-      <strong id="todaySales">0</strong>
-    </div>
-
-    <div class="stat">
-      🧾 فواتير اليوم
-      <strong id="todayBills">0</strong>
-    </div>
-
-    <div class="stat">
-      📈 أرباح اليوم
-      <strong id="todayProfit">0</strong>
-    </div>
-
-    <div class="stat">
-      📦 عدد المنتجات
-      <strong id="productCount">0</strong>
-    </div>
-
-  </div>
-
-  <div class="card">
-    <h2>💸 تسجيل مصروف</h2>
-
-    <input id="expenseName" placeholder="مثال: كهرباء / مواصلات / إيجار">
-
-    <input id="expenseAmount" type="number"
-           placeholder="قيمة المصروف">
-
-    <button class="btn btn-red" onclick="addExpense()">
-      ➕ تسجيل المصروف
-    </button>
-  </div>
-
-  <div class="card">
-    <h2>📊 سجل المبيعات</h2>
-    <div id="salesArea"></div>
-  </div>
-
-  <div class="card">
-    <h2>💸 المصروفات</h2>
-    <div id="expensesArea"></div>
-  </div>
-
-</section>
-
-</div>
-
-
-<!-- ================= نافذة تعديل ================= -->
-
-<div class="modal" id="editModal">
-
-  <div class="modal-box">
-
-    <h2>✏️ تعديل المنتج</h2>
-
-    <input type="hidden" id="editIndex">
-
-    <label>اسم المنتج</label>
-    <input id="editName">
-
-    <label>الباركود</label>
-    <input id="editBarcode">
-
-    <label>المقاس</label>
-    <input id="editSize">
-
-    <label>سعر الشراء</label>
-    <input id="editCost" type="number">
-
-    <label>سعر البيع</label>
-    <input id="editPrice" type="number">
-
-    <label>الكمية</label>
-    <input id="editStock" type="number">
-
-    <button class="btn btn-green" onclick="updateProduct()">
-      💾 حفظ التعديل
-    </button>
-
-    <button class="btn btn-red" onclick="closeModal()">
-      إلغاء
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- ================= التنقل ================= -->
-
-<nav>
-
-  <button class="active" onclick="switchTab('pos',this)">
-    <span>🛒</span>
-    الكاشير
-  </button>
-
-  <button onclick="switchTab('inventory',this)">
-    <span>📦</span>
-    المخزن
-  </button>
-
-  <button onclick="switchTab('reports',this)">
-    <span>📊</span>
-    التقارير
-  </button>
-
-</nav>
-
-
-<script>
-
-/* ================= البيانات ================= */
-
-let inventory =
-  JSON.parse(localStorage.getItem("castle_inventory")) || [];
-
-let sales =
-  JSON.parse(localStorage.getItem("castle_sales")) || [];
-
-let expenses =
-  JSON.parse(localStorage.getItem("castle_expenses")) || [];
-
-let cart = [];
-
-
-/* ================= حفظ البيانات ================= */
-
-function saveData(){
-  localStorage.setItem(
-    "castle_inventory",
-    JSON.stringify(inventory)
-  );
-
-  localStorage.setItem(
-    "castle_sales",
-    JSON.stringify(sales)
-  );
-
-  localStorage.setItem(
-    "castle_expenses",
-    JSON.stringify(expenses)
-  );
-}
-
-
-/* ================= التنقل ================= */
-
-function switchTab(tab,btn){
-
-  document.querySelectorAll(".section")
-    .forEach(x=>x.classList.remove("active"));
-
-  document.querySelectorAll("nav button")
-    .forEach(x=>x.classList.remove("active"));
-
-  document.getElementById(tab+"-section")
-    .classList.add("active");
-
-  btn.classList.add("active");
-
-  renderAll();
-}
-
-
-/* ================= إضافة منتج ================= */
-
-function saveProduct(){
-
-  const name =
-    document.getElementById("pName").value.trim();
-
-  const barcode =
-    document.getElementById("pBarcode").value.trim();
-
-  const size =
-    document.getElementById("pSize").value.trim();
-
-  const cost =
-    Number(document.getElementById("pCost").value);
-
-  const price =
-    Number(document.getElementById("pPrice").value);
-
-  const stock =
-    Number(document.getElementById("pStock").value);
-
-  if(!name || !barcode || !price || stock < 0){
-    alert("من فضلك املأ البيانات الأساسية");
-    return;
-  }
-
-  if(inventory.some(p=>p.barcode===barcode)){
-    alert("⚠️ هذا الباركود موجود بالفعل");
-    return;
-  }
-
-  inventory.push({
-    id:Date.now(),
-    name,
-    barcode,
-    size,
-    cost:cost || 0,
-    price,
-    stock
-  });
-
-  saveData();
-
-  document
-    .querySelectorAll("#inventory-section input")
-    .forEach(x=>x.value="");
-
-  renderAll();
-
-  alert("✅ تم حفظ المنتج");
-}
-
-
-/* ================= عرض المخزن ================= */
-
-function renderInventory(){
-
-  const area =
-    document.getElementById("inventoryArea");
-
-  const search =
-    (document.getElementById("inventorySearch")?.value || "")
-      .toLowerCase();
-
-  const list =
-    inventory.filter(p=>
-      p.name.toLowerCase().includes(search) ||
-      p.barcode.toLowerCase().includes(search)
-    );
-
-  if(list.length===0){
-    area.innerHTML =
-      `<div class="empty">لا توجد منتجات</div>`;
-    return;
-  }
-
-  let html=`
-  <table>
-  <thead>
-    <tr>
-      <th>الكود</th>
-      <th>المنتج</th>
-      <th>السعر</th>
-      <th>المتاح</th>
-      <th>إجراء</th>
-    </tr>
-  </thead>
-  <tbody>`;
-
-  list.forEach(p=>{
-
-    const index=inventory.indexOf(p);
-
-    html+=`
-    <tr>
-      <td>${p.barcode}</td>
-
-      <td>
-        ${p.name}
-        <br>
-        <small style="color:#94a3b8">
-          ${p.size || ""}
-        </small>
-      </td>
-
-      <td>${money(p.price)}</td>
-
-      <td>
-        ${
-          p.stock<=0
-          ? `<span class="badge badge-red">نفد</span>`
-          : p.stock
-        }
-      </td>
-
-      <td>
-        <button class="small-btn btn-blue"
-          onclick="editProduct(${index})">✏️</button>
-
-        <button class="small-btn btn-red"
-          onclick="deleteProduct(${index})">🗑️</button>
-      </td>
-    </tr>`;
-  });
-
-  html+=`</tbody></table>`;
-
-  area.innerHTML=html;
-}
-
-
-/* ================= تعديل المنتج ================= */
-
-function editProduct(index){
-
-  const p=inventory[index];
-
-  document.getElementById("editIndex").value=index;
-  document.getElementById("editName").value=p.name;
-  document.getElementById("editBarcode").value=p.barcode;
-  document.getElementById("editSize").value=p.size || "";
-  document.getElementById("editCost").value=p.cost || 0;
-  document.getElementById("editPrice").value=p.price;
-  document.getElementById("editStock").value=p.stock;
-
-  document.getElementById("editModal")
-    .style.display="flex";
-}
-
-
-function closeModal(){
-  document.getElementById("editModal")
-    .style.display="none";
-}
-
-
-function updateProduct(){
-
-  const index =
-    Number(document.getElementById("editIndex").value);
-
-  inventory[index]={
-    ...inventory[index],
-
-    name:document.getElementById("editName").value.trim(),
-
-    barcode:document.getElementById("editBarcode").value.trim(),
-
-    size:document.getElementById("editSize").value.trim(),
-
-    cost:Number(document.getElementById("editCost").value)||0,
-
-    price:Number(document.getElementById("editPrice").value),
-
-    stock:Number(document.getElementById("editStock").value)
-  };
-
-  saveData();
-  closeModal();
-  renderAll();
-
-  alert("✅ تم تعديل المنتج");
-}
-
-
-/* ================= حذف ================= */
-
-function deleteProduct(index){
-
-  if(!confirm("هل أنت متأكد من حذف المنتج؟"))
-    return;
-
-  inventory.splice(index,1);
-
-  saveData();
-  renderAll();
-}
-
-
-/* ================= البحث ================= */
-
-function showSearchResults(){
-
-  const text =
-    document.getElementById("productSearch")
-      .value.toLowerCase();
-
-  const box =
-    document.getElementById("searchResults");
-
-  if(!text){
-    box.innerHTML="";
-    return;
-  }
-
-  const results =
-    inventory.filter(p=>
-      p.name.toLowerCase().includes(text) ||
-      p.barcode.toLowerCase().includes(text)
-    );
-
-  if(!results.length){
-    box.innerHTML=
-      `<p style="color:#ef4444;margin-top:8px">
-      لا يوجد منتج
-      </p>`;
-    return;
-  }
-
-  box.innerHTML=results.slice(0,5).map(p=>`
-    <button
-      style="margin-top:5px;text-align:right"
-      onclick="selectProduct('${p.barcode}')">
-      ${p.name} — ${money(p.price)}
-      — المتاح: ${p.stock}
-    </button>
-  `).join("");
-}
-
-
-function selectProduct(barcode){
-
-  document.getElementById("barcode").value=barcode;
-
-  document.getElementById("productSearch").value="";
-
-  document.getElementById("searchResults").innerHTML="";
-
-  addToCart();
-}
-
-
-/* ================= السلة ================= */
-
-function addToCart(){
-
-  const barcode =
-    document.getElementById("barcode").value.trim();
-
-  const qty =
-    Number(document.getElementById("qty").value)||1;
-
-  if(!barcode){
-    alert("اكتب الباركود أولاً");
-    return;
-  }
-
-  const product =
-    inventory.find(p=>p.barcode===barcode);
-
-  if(!product){
-    alert("❌ المنتج غير موجود في المخزن");
-    return;
-  }
-
-  if(product.stock<=0){
-    alert("❌ المنتج نفد من المخزون");
-    return;
-  }
-
-  const existing =
-    cart.find(x=>x.barcode===barcode);
-
-  const currentQty =
-    existing ? existing.qty : 0;
-
-  if(currentQty + qty > product.stock){
-    alert("❌ الكمية المطلوبة أكبر من المتاح");
-    return;
-  }
-
-  if(existing){
-    existing.qty+=qty;
-  }else{
-    cart.push({
-      ...product,
-      qty
-    });
-  }
-
-  document.getElementById("barcode").value="";
-  document.getElementById("qty").value=1;
-
-  renderCart();
-}
-
-
-function removeCart(index){
-
-  cart.splice(index,1);
-
-  renderCart();
-}
-
-
-function renderCart(){
-
-  const area =
-    document.getElementById("cartArea");
-
-  if(!cart.length){
-
-    area.innerHTML=
-      `<div class="empty">السلة فارغة</div>`;
-
-    document.getElementById("cartQty")
-      .innerText="0";
-
-    document.getElementById("cartTotal")
-      .innerText="0 ج.م";
-
-    return;
-  }
-
-  let total=0;
-  let qty=0;
-
-  let html=`
-  <table>
-  <thead>
-    <tr>
-      <th>المنتج</th>
-      <th>الكمية</th>
-      <th>السعر</th>
-      <th>حذف</th>
-    </tr>
-  </thead>
-  <tbody>`;
-
-  cart.forEach((item,index)=>{
-
-    const subtotal=item.price*item.qty;
-
-    total+=subtotal;
-    qty+=item.qty;
-
-    html+=`
-    <tr>
-
-      <td>
-        ${item.name}
-        <br>
-        <small>${item.size || ""}</small>
-      </td>
-
-      <td>${item.qty}</td>
-
-      <td>${money(subtotal)}</td>
-
-      <td>
-        <button
-          class="small-btn btn-red"
-          onclick="removeCart(${index})">
-          ✕
-        </button>
-      </td>
-
-    </tr>`;
-  });
-
-  html+=`</tbody></table>`;
-
-  area.innerHTML=html;
-
-  document.getElementById("cartQty")
-    .innerText=qty;
-
-  document.getElementById("cartTotal")
-    .innerText=money(total);
-}
-
-
-/* ================= البيع ================= */
-
-function checkout(){
-
-  if(!cart.length){
-    alert("❌ السلة فارغة");
-    return;
-  }
-
-  const phone =
-    document.getElementById("customerPhone").value.trim();
-
-  const payment =
-    document.getElementById("payment").value;
-
-  const total =
-    cart.reduce(
-      (sum,item)=>sum+(item.price*item.qty),0
-    );
-
-  const cost =
-    cart.reduce(
-      (sum,item)=>sum+(item.cost*item.qty),0
-    );
-
-  const profit=total-cost;
-
-  const invoice={
-    id:Date.now(),
-    date:new Date().toISOString(),
-    phone,
-    payment,
-    total,
-    cost,
-    profit,
-    items:cart.map(x=>({
-      name:x.name,
-      barcode:x.barcode,
-      size:x.size,
-      price:x.price,
-      qty:x.qty
-    }))
-  };
-
-  /* خصم المخزون */
-
-  cart.forEach(item=>{
-
-    const p=
-      inventory.find(x=>x.barcode===item.barcode);
-
-    if(p){
-      p.stock-=item.qty;
-    }
-
-  });
-
-  sales.push(invoice);
-
-  saveData();
-
-  printInvoice(invoice);
-
-  cart=[];
-
-  document.getElementById("customerPhone").value="";
-
-  renderAll();
-}
-
-
-/* ================= الفاتورة ================= */
-
-function printInvoice(invoice){
-
-  const items=invoice.items.map(item=>`
-    <tr>
-      <td>${item.name}</td>
-      <td>${item.qty}</td>
-      <td>${item.price}</td>
-      <td>${item.qty*item.price}</td>
-    </tr>
-  `).join("");
-
-  const html=`
-  <!DOCTYPE html>
-  <html lang="ar" dir="rtl">
-  <head>
-  <meta charset="UTF-8">
-  <title>فاتورة Castle Jeans</title>
-
-  <style>
-    body{
-      font-family:Arial;
-      width:80mm;
-      margin:auto;
-      padding:10px;
-    }
-
-    h2{text-align:center}
-
-    .center{text-align:center}
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:12px;
-    }
-
-    th,td{
-      border-bottom:1px solid #ddd;
-      padding:6px 2px;
-      text-align:right;
-    }
-
-    .total{
-      font-size:18px;
-      font-weight:bold;
-      margin-top:15px;
-    }
-
-    @media print{
-      button{display:none}
-    }
-  </style>
-  </head>
-
-  <body>
-
-  <h2>🏰 Castle Jeans</h2>
-
-  <p class="center">فاتورة مبيعات</p>
-
-  <hr>
-
-  <p>
-  رقم الفاتورة: ${invoice.id}
-  <br>
-  التاريخ: ${new Date(invoice.date).toLocaleString("ar-EG")}
-  <br>
-  الدفع: ${invoice.payment}
-  </p>
-
-  <table>
-
-  <tr>
-    <th>المنتج</th>
-    <th>ك</th>
-    <th>س</th>
-    <th>الإجمالي</th>
-  </tr>
-
-  ${items}
-
-  </table>
-
-  <div class="total">
-  الإجمالي: ${money(invoice.total)}
-  </div>
-
-  ${
-    invoice.phone
-    ? `<p>واتساب: ${invoice.phone}</p>`
-    : ""
-  }
-
-  <hr>
-
-  <p class="center">
-  شكراً لزيارتكم ❤️
-  <br>
-  Castle Jeans
-  </p>
-
-  <script>
-    window.onload=function(){
-      window.print();
-    }
-  <\/script>
-
-  </body>
-  </html>
-  `;
-
-  const win=window.open("","_blank");
-
-  win.document.write(html);
-  win.document.close();
-}
-
-
-/* ================= المصروفات ================= */
-
-function addExpense(){
-
-  const name=
-    document.getElementById("expenseName")
-      .value.trim();
-
-  const amount=
-    Number(
-      document.getElementById("expenseAmount").value
-    );
-
-  if(!name || !amount){
-    alert("اكتب اسم وقيمة المصروف");
-    return;
-  }
-
-  expenses.push({
-    id:Date.now(),
-    name,
-    amount,
-    date:new Date().toISOString()
-  });
-
-  saveData();
-
-  document.getElementById("expenseName").value="";
-  document.getElementById("expenseAmount").value="";
-
-  renderAll();
-
-  alert("✅ تم تسجيل المصروف");
-}
-
-
-/* ================= التقارير ================= */
-
-function isToday(date){
-
-  const
+import sqlite3
+import tkinter as tk
+from tkinter import messagebox, ttk
+import customtkinter as ctk
+
+# ضبط مظهر الواجهة
+ctk.set_appearance_mode("Dark")
+ctk.set_default_color_theme("blue")
+
+
+# --- إنشاء وقاعدة البيانات ---
+def init_db():
+    conn = sqlite3.connect("castle_jeans.db")
+    cursor = conn.cursor()
+
+    # جدول المنتجات والمخزون
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS inventory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT UNIQUE,
+            name TEXT,
+            size TEXT,
+            buy_price REAL,
+            sell_price REAL,
+            quantity INTEGER
+        )
+    """
+    )
+
+    # جدول المبيعات
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS sales (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER,
+            quantity INTEGER,
+            total_sell REAL,
+            total_cost REAL,
+            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """
+    )
+
+    # جدول المصاريف
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS expenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            amount REAL,
+            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """
+    )
+
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
+
+# --- الواجهة الرئيسية ---
+class CastleJeansApp(ctk.CTk):
+
+    def __init__(self):
+        super().__init__()
+
+        self.title("Castle Jeans - نظام إدارة المبيعات والمخزون")
+        self.geometry("1100x700")
+
+        # العنوان الرئيسي
+        self.header_label = ctk.CTkLabel(
+            self,
+            text="🏰 Castle Jeans",
+            font=ctk.CTkFont(size=28, weight="bold"),
+        )
+        self.header_label.pack(pady=15)
+
+        # إنشاء التبويبات (Tabs)
+        self.tabview = ctk.CTkTabview(self, width=1050, height=600)
+        self.tabview.pack(padx=20, pady=10, fill="both", expand=True)
+
+        self.tab_pos = self.tabview.add("🛒 المبيعات (POS)")
+        self.tab_inventory = self.tabview.add("📦 مدخلات البضاعة والمخزن")
+        self.tab_expenses = self.tabview.add("💸 المصاريف (إيجار/عمالة)")
+        self.tab_reports = self.tabview.add("📊 التقارير وصافي الربح")
+
+        # إعداد الأقسام
+        self.setup_pos_tab()
+        self.setup_inventory_tab()
+        self.setup_expenses_tab()
+        self.setup_reports_tab()
+
+    # --- 1. تبويب المبيعات ---
+    def setup_pos_tab(self):
+        frame = self.tab_pos
+
+        ctk.CTkLabel(
+            frame, text="كود القطعة:", font=ctk.CTkFont(size=16)
+        ).grid(row=0, column=0, padx=10, pady=10)
+        self.code_sale_entry = ctk.CTkEntry(frame, width=200)
+        self.code_sale_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        ctk.CTkLabel(frame, text="الكمية:", font=ctk.CTkFont(size=16)).grid(
+            row=0, column=2, padx=10, pady=10
+        )
+        self.qty_sale_entry = ctk.CTkEntry(frame, width=100)
+        self.qty_sale_entry.insert(0, "1")
+        self.qty_sale_entry.grid(row=0, column=3, padx=10, pady=10)
+
+        btn_sell = ctk.CTkButton(
+            frame,
+            text="إتمام عملية البيع 🛍️",
+            fg_color="green",
+            command=self.process_sale,
+        )
+        btn_sell.grid(row=0, column=4, padx=15, pady=10)
+
+    def process_sale(self):
+        code = self.code_sale_entry.get()
+        try:
+            qty = int(self.qty_sale_entry.get())
+        except ValueError:
+            messagebox.showerror("خطأ", "برجاء إدخال كمية صحيحة")
+            return
+
+        conn = sqlite3.connect("castle_jeans.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, buy_price, sell_price, quantity FROM inventory WHERE code=?", (code,))
+        item = cursor.fetchone()
+
+        if not item:
+            messagebox.showerror("خطأ", "المنتج غير موجود!")
+        elif item[3] < qty:
+            messagebox.showwarning("تنبيه", f"الكمية المتاحة في المخزن فقط {item[3]}")
+        else:
+            new_qty = item[3] - qty
+            cursor.execute("UPDATE inventory SET quantity=? WHERE id=?", (new_qty, item[0]))
+            
+            total_sell = item[2] * qty
+            total_cost = item[1] * qty
+            cursor.execute("INSERT INTO sales (product_id, quantity, total_sell, total_cost) VALUES (?, ?, ?, ?)",
+                           (item[0], qty, total_sell, total_cost))
+            
+            conn.commit()
+            messagebox.showinfo("نجاح", f"تم البيع بنجاح! الإجمالي: {total_sell} ج.م")
+            self.code_sale_entry.delete(0, 'end')
+            self.refresh_inventory()
+        conn.close()
+
+    # --- 2. تبويب إضافة البضاعة والمخزن ---
+    def setup_inventory_tab(self):
+        frame = self.tab_inventory
+
+        # نموذج الإدخال
+        fields = [("الكود (الباركود)", 0), ("اسم القطعة", 1), ("المقاس", 2), 
+                  ("سعر الشراء (التكلفة)", 3), ("سعر البيع", 4), ("الكمية", 5)]
+        self.inv_entries = {}
+
+        for label_text, row in fields:
+            ctk.CTkLabel(frame, text=label_text).grid(row=row, column=0, padx=10, pady=5, sticky="e")
+            entry = ctk.CTkEntry(frame, width=200)
+            entry.grid(row=row, column=1, padx=10, pady=5)
+            self.inv_entries[label_text] = entry
+
+        btn_add = ctk.CTkButton(frame, text="إضافة / تحديث المخزون 📦", command=self.add_to_inventory)
+        btn_add.grid(row=6, column=0, columnspan=2, pady=15)
+
+        # جدول عرض المخزون
+        self.tree = ttk.Treeview(frame, columns=("code", "name", "size", "buy", "sell", "qty"), show="headings", height=10)
+        self.tree.heading("code", text="الكود")
+        self.tree.heading("name", text="الاسم")
+        self.tree.heading("size", text="المقاس")
+        self.tree.heading("buy", text="سعر الشراء")
+        self.tree.heading("sell", text="سعر البيع")
+        self.tree.heading("qty", text="الكمية بالمخزن")
+        self.tree.grid(row=0, column=2, rowspan=7, padx=20, pady=5)
+
+        self.refresh_inventory()
+
+    def add_to_inventory(self):
+        try:
+            code = self.inv_entries["الكود (الباركود)"].get()
+            name = self.inv_entries["اسم القطعة"].get()
+            size = self.inv_entries["المقاس"].get()
+            buy = float(self.inv_entries["سعر الشراء (التكلفة)"].get())
+            sell = float(self.inv_entries["سعر البيع"].get())
+            qty = int(self.inv_entries["الكمية"].get())
+
+            conn = sqlite3.connect("castle_jeans.db")
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO inventory (code, name, size, buy_price, sell_price, quantity)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(code) DO UPDATE SET 
+                quantity = quantity + excluded.quantity,
+                buy_price = excluded.buy_price,
+                sell_price = excluded.sell_price
+            """, (code, name, size, buy, sell, qty))
+            conn.commit()
+            conn.close()
+
+            messagebox.showinfo("تم", "تمت إضافة البضاعة بنجاح!")
+            self.refresh_inventory()
+        except Exception as e:
+            messagebox.showerror("خطأ", "تأكد من إدخال البيانات بشكل صحيح")
+
+    def refresh_inventory(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        conn = sqlite3.connect("castle_jeans.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT code, name, size, buy_price, sell_price, quantity FROM inventory")
+        for row in cursor.fetchall():
+            self.tree.insert("", "end", values=row)
+        conn.close()
+
+    # --- 3. تبويب المصاريف (إيجار/عمالة) ---
+    def setup_expenses_tab(self):
+        frame = self.tab_expenses
+
+        ctk.CTkLabel(frame, text="بيان المصروف (إيجار/كهرباء/عمالة):").grid(row=0, column=0, padx=10, pady=10)
+        self.exp_title_entry = ctk.CTkEntry(frame, width=200)
+        self.exp_title_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        ctk.CTkLabel(frame, text="المبلغ:").grid(row=1, column=0, padx=10, pady=10)
+        self.exp_amount_entry = ctk.CTkEntry(frame, width=200)
+        self.exp_amount_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        btn_add_exp = ctk.CTkButton(frame, text="تسجيل المصروف 💵", fg_color="orange", command=self.add_expense)
+        btn_add_exp.grid(row=2, column=0, columnspan=2, pady=15)
+
+    def add_expense(self):
+        title = self.exp_title_entry.get()
+        try:
+            amount = float(self.exp_amount_entry.get())
+            conn = sqlite3.connect("castle_jeans.db")
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO expenses (title, amount) VALUES (?, ?)", (title, amount))
+            conn.commit()
+            conn.close()
+            messagebox.showinfo("تم", "تم تسجيل المصروف بنجاح!")
+            self.exp_title_entry.delete(0, 'end')
+            self.exp_amount_entry.delete(0, 'end')
+        except ValueError:
+            messagebox.showerror("خطأ", "يرجى كتابة مبلغ صحيح")
+
+    # --- 4. تبويب الحسابات وصافي الربح ---
+    def setup_reports_tab(self):
+        frame = self.tab_reports
+
+        btn_calc = ctk.CTkButton(frame, text="تحديث وتجميع الأرقام 🔄", command=self.calculate_financials)
+        btn_calc.pack(pady=15)
+
+        self.lbl_sales = ctk.CTkLabel(frame, text="إجمالي المبيعات: 0 ج.م", font=ctk.CTkFont(size=18))
+        self.lbl_sales.pack(pady=10)
+
+        self.lbl_gross_profit = ctk.CTkLabel(frame, text="مجمل ربح البضاعة (البيع - التكلفة): 0 ج.م", font=ctk.CTkFont(size=18))
+        self.lbl_gross_profit.pack(pady=10)
+
+        self.lbl_expenses = ctk.CTkLabel(frame, text="إجمالي المصاريف (إيجار/عمالة/غيرها): 0 ج.م", font=ctk.CTkFont(size=18))
+        self.lbl_expenses.pack(pady=10)
+
+        self.lbl_net_profit = ctk.CTkLabel(frame, text="💰 صافي الربح النهائي: 0 ج.م", font=ctk.CTkFont(size=22, weight="bold"), text_color="green")
+        self.lbl_net_profit.pack(pady=20)
+
+    def calculate_financials(self):
+        conn = sqlite3.connect("castle_jeans.db")
+        cursor = conn.cursor()
+
+        # إجمالي المبيعات والتكلفة
+        cursor.execute("SELECT SUM(total_sell), SUM(total_cost) FROM sales")
+        sales_data = cursor.fetchone()
+        total_sales = sales_data[0] if sales_data[0] else 0.0
+        total_cost = sales_data[1] if sales_data[1] else 0.0
+        gross_profit = total_sales - total_cost
+
+        # إجمالي المصاريف
+        cursor.execute("SELECT SUM(amount) FROM expenses")
+        exp_data = cursor.fetchone()
+        total_expenses = exp_data[0] if exp_data[0] else 0.0
+
+        # صافي الربح
+        net_profit = gross_profit - total_expenses
+
+        # تحديث الواجهة
+        self.lbl_sales.configure(text=f"إجمالي المبيعات: {total_sales:,.2f} ج.م")
+        self.lbl_gross_profit.configure(text=f"مجمل ربح البضاعة: {gross_profit:,.2f} ج.م")
+        self.lbl_expenses.configure(text=f"إجمالي المصاريف (إيجار/عمالة): {total_expenses:,.2f} ج.م")
+        
+        color = "green" if net_profit >= 0 else "red"
+        self.lbl_net_profit.configure(text=f"💰 صافي الربح النهائي: {net_profit:,.2f} ج.م", text_color=color)
+
+        conn.close()
+
+
+if __name__ == "__main__":
+    app = CastleJeansApp()
+    app.mainloop()
