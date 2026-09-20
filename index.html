@@ -16,7 +16,7 @@
       --border: #334155;
     }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 75px; }
     
     header { background-color: var(--card); padding: 15px; text-align: center; border-bottom: 1px solid var(--border); }
     header h1 { color: var(--accent); font-size: 1.4rem; }
@@ -38,7 +38,6 @@
     button.btn-primary { background-color: var(--green); color: white; font-weight: bold; border: none; margin-top: 12px; cursor: pointer; }
     button.btn-danger { background-color: var(--red); color: white; border: none; padding: 6px 10px; border-radius: 6px; width: auto; }
     
-    /* Cart & Table Styles */
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
     th, td { padding: 8px; text-align: right; border-bottom: 1px solid var(--border); }
     th { color: var(--subtext); }
@@ -46,8 +45,7 @@
     .total-box { background-color: var(--bg); padding: 12px; border-radius: 8px; margin-top: 10px; }
     .total-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: bold; }
     
-    /* Navigation Bar */
-    nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card); display: flex; border-top: 1px solid var(--border); height: 60px; }
+    nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card); display: flex; border-top: 1px solid var(--border); height: 60px; z-index: 1000; }
     nav button { flex: 1; border: none; background: transparent; color: var(--subtext); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 0; }
     nav button.active { color: var(--accent); font-weight: bold; }
     nav button span { font-size: 1.2rem; }
@@ -57,18 +55,17 @@
 
   <header>
     <h1>🏰 Castle Jeans</h1>
-    <p style="font-size: 0.8rem; color: var(--subtext);">نظام المبيعات والمخزون المتكامل</p>
+    <p style="font-size: 0.8rem; color: var(--subtext);">نظام إدارة المبيعات والمخزون</p>
   </header>
 
   <div class="container">
-    
-    <!-- 1. شاشة البيع (الكاشير) -->
+    <!-- 1. الكاشير -->
     <div id="pos-section" class="section active">
       <div class="card">
-        <h2>تسجيل حركة بيع</h2>
+        <h2>تسجيل عملية بيع</h2>
         <div class="row">
           <div>
-            <label>الباركود / كود القطعة</label>
+            <label>باركود / كود القطعة</label>
             <input type="text" id="pos-barcode" placeholder="امسح أو اكتب الكود">
           </div>
           <div style="flex: 0.4;">
@@ -90,9 +87,7 @@
               <th>إلغاء</th>
             </tr>
           </thead>
-          <tbody id="cart-items">
-            <!-- المنتجات بتظهر هنا -->
-          </tbody>
+          <tbody id="cart-items"></tbody>
         </table>
 
         <div class="total-box">
@@ -112,16 +107,16 @@
           <option value="فيزا">فيزا / كارت</option>
         </select>
 
-        <button class="btn-primary" style="background-color: var(--accent); color: #000;" onclick="checkout()">إتمام العملية وطباعة الفاتورة</button>
+        <button class="btn-primary" style="background-color: var(--accent); color: #000;" onclick="checkout()">إتمام عملية البيع</button>
       </div>
     </div>
 
-    <!-- 2. شاشة المخزون والمنتجات -->
+    <!-- 2. المخزن -->
     <div id="inventory-section" class="section">
       <div class="card">
-        <h2>إضافة منتج جديد للمخزن</h2>
+        <h2>إضافة منتج جديد</h2>
         <label>اسم القطعة / الموديل</label>
-        <input type="text" id="prod-name" placeholder="مثال: بنطلون جينز سليم">
+        <input type="text" id="prod-name" placeholder="مثال: بنطلون جينز أزرق">
         
         <div class="row">
           <div>
@@ -130,15 +125,11 @@
           </div>
           <div>
             <label>المقاس</label>
-            <input type="text" id="prod-size" placeholder="32, 34, L..">
+            <input type="text" id="prod-size" placeholder="32, 34..">
           </div>
         </div>
 
         <div class="row">
-          <div>
-            <label>سعر التكلفة</label>
-            <input type="number" id="prod-cost" placeholder="0">
-          </div>
           <div>
             <label>سعر البيع</label>
             <input type="number" id="prod-price" placeholder="0">
@@ -153,7 +144,7 @@
       </div>
 
       <div class="card">
-        <h2>المنتجات المسجلة بالمخزن</h2>
+        <h2>المنتجات بالمخزن</h2>
         <table>
           <thead>
             <tr>
@@ -163,14 +154,12 @@
               <th>المتاح</th>
             </tr>
           </thead>
-          <tbody id="inventory-list">
-            <!-- المنتجات المسجلة بتظهر هنا -->
-          </tbody>
+          <tbody id="inventory-list"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- 3. شاشة التقارير والمبيعات -->
+    <!-- 3. التقارير -->
     <div id="reports-section" class="section">
       <div class="card">
         <h2>ملخص مبيعات اليوم</h2>
@@ -189,24 +178,19 @@
 
   </div>
 
-  <!-- شريط التنقل السفلي -->
   <nav>
     <button class="active" onclick="switchTab('pos', this)">
-      <span>🛒</span>
-      الكاشير
+      <span>🛒</span>الكاشير
     </button>
     <button onclick="switchTab('inventory', this)">
-      <span>📦</span>
-      المخزن
+      <span>📦</span>المخزن
     </button>
     <button onclick="switchTab('reports', this)">
-      <span>📊</span>
-      التقارير
+      <span>📊</span>التقارير
     </button>
   </nav>
 
   <script>
-    // قاعدة بيانات مؤقتة متخزنة على الـ LocalStorage للموبايل
     let inventory = JSON.parse(localStorage.getItem('castle_inventory')) || [];
     let cart = [];
     let salesHistory = JSON.parse(localStorage.getItem('castle_sales')) || [];
@@ -226,15 +210,13 @@
       const stock = parseInt(document.getElementById('prod-stock').value);
 
       if(!name || !barcode || isNaN(price)) {
-        alert('يرجى ملء البيانات الأساسية (الاسم، الباركود، سعر البيع)');
+        alert('يرجى ملء البيانات الأساسية');
         return;
       }
 
       inventory.push({ name, barcode, price, stock });
       localStorage.setItem('castle_inventory', JSON.stringify(inventory));
       alert('تم حفظ المنتج بنجاح!');
-      
-      // مسح الحقول
       document.getElementById('prod-name').value = '';
       document.getElementById('prod-barcode').value = '';
       document.getElementById('prod-price').value = '';
@@ -248,7 +230,7 @@
       
       const item = inventory.find(p => p.barcode === barcode);
       if(!item) {
-        alert('هذا المنتج غير مسجل بالمخزن، يرجى إضافته أولاً من قسم المخزن!');
+        alert('هذا المنتج غير مسجل بالمخزن، اضفه أولاً من قسم المخزن');
         return;
       }
 
@@ -289,22 +271,18 @@
       }
 
       const total = cart.reduce((sum, item) => sum + item.subtotal, 0);
-      const phone = document.getElementById('client-phone').value;
       const method = document.getElementById('payment-method').value;
 
       salesHistory.push({ date: new Date().toLocaleDateString('ar-EG'), total, method, items: cart });
       localStorage.setItem('castle_sales', JSON.stringify(salesHistory));
 
-      alert(`تم إتمام العملية بنجاح!\nالإجمالي: ${total} ج.م\nطريقة الدفع: ${method}`);
-      
+      alert(`تم إتمام عملية البيع بنجاح!\nالإجمالي: ${total} ج.م`);
       cart = [];
-      document.getElementById('client-phone').value = '';
       updateCartUI();
       updateUI();
     }
 
     function updateUI() {
-      // تحديث جدول المخزن
       const invBody = document.getElementById('inventory-list');
       invBody.innerHTML = '';
       inventory.forEach(item => {
@@ -318,13 +296,11 @@
         `;
       });
 
-      // تحديث التقارير
       const totalSales = salesHistory.reduce((sum, s) => sum + s.total, 0);
       document.getElementById('report-sales').innerText = totalSales + ' ج.م';
       document.getElementById('report-count').innerText = salesHistory.length;
     }
 
-    // تشغيل التحديث عند الفتح
     updateUI();
   </script>
 </body>
